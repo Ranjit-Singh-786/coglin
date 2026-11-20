@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Classifier</title>
+    <style>
+        :root { color-scheme: light; font-family: Inter, "Segoe UI", Arial, sans-serif; color: #172033; background: #f3f6fb; }
+        * { box-sizing: border-box; }
+        body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 32px 18px; background: radial-gradient(circle at 15% 10%, #e2edff 0, transparent 32%), #f3f6fb; }
+        .shell { width: min(100%, 760px); }
+        header { text-align: center; margin-bottom: 24px; }
+        .mark { display: inline-grid; place-items: center; width: 48px; height: 48px; border-radius: 15px; background: #e7efff; color: #315fce; font-size: 23px; margin-bottom: 12px; }
+        h1 { margin: 0; font-size: clamp(1.8rem, 4vw, 2.35rem); letter-spacing: -.04em; }
+        .subtitle { margin: 9px 0 0; color: #68748a; font-size: 1rem; }
+        .card { padding: clamp(22px, 5vw, 38px); background: #fff; border: 1px solid #e5eaf2; border-radius: 20px; box-shadow: 0 18px 55px rgba(32, 52, 91, .09); }
+        label { display: block; margin-bottom: 10px; font-weight: 650; font-size: .96rem; }
+        textarea { display: block; width: 100%; min-height: 190px; padding: 15px 16px; resize: vertical; border: 1px solid #d8dfeb; border-radius: 12px; color: #172033; font: inherit; line-height: 1.55; outline: none; transition: border-color .15s, box-shadow .15s; }
+        textarea::placeholder { color: #9aa4b4; }
+        textarea:focus { border-color: #557be0; box-shadow: 0 0 0 4px rgba(85, 123, 224, .13); }
+        .hint { margin: 9px 0 20px; color: #778297; font-size: .84rem; }
+        button { width: 100%; min-height: 50px; border: 0; border-radius: 11px; background: #315fce; color: #fff; font: inherit; font-weight: 650; cursor: pointer; transition: background .15s, transform .15s; }
+        button:hover { background: #244fb7; }
+        button:active { transform: translateY(1px); }
+        .result { display: flex; align-items: center; gap: 14px; margin-top: 22px; padding: 16px 18px; border-radius: 12px; background: #f1f8f3; border: 1px solid #d7eddd; }
+        .result.spam { background: #fff5f2; border-color: #f5ddd5; }
+        .result-icon { display: grid; place-items: center; flex: 0 0 38px; height: 38px; border-radius: 50%; background: #dff2e4; color: #238447; font-weight: 800; }
+        .spam .result-icon { background: #ffe4dc; color: #bd4d32; }
+        .result p { margin: 0; color: #667287; font-size: .9rem; }
+        .result strong { display: block; margin-bottom: 3px; color: #172033; font-size: 1.02rem; }
+        .error { margin: 0 0 16px; padding: 12px 14px; border-radius: 9px; background: #fff1ef; color: #a43d2b; }
+        footer { margin-top: 18px; text-align: center; color: #8993a3; font-size: .82rem; }
+        @media (max-width: 480px) { body { padding: 22px 14px; } .card { border-radius: 16px; } textarea { min-height: 165px; } }
+    </style>
+</head>
+<body>
+    <main class="shell">
+        <header>
+            <div class="mark" aria-hidden="true">✉</div>
+            <h1>Message Classifier</h1>
+            <p class="subtitle">Check whether a message is spam or safe.</p>
+        </header>
+        <section class="card" aria-label="Message classification form">
+            {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+            <form action="{{ url_for('prediction') }}" method="post">
+                <label for="emailContent">Your message</label>
+                <textarea id="emailContent" name="emailContent" required maxlength="20000" placeholder="Paste or type a message here...">{{ submitted_text or '' }}</textarea>
+                <p class="hint">Your message is classified and logged locally with the result and submission date and time.</p>
+                <button type="submit">Classify message</button>
+            </form>
+            {% if output %}
+            <div class="result {{ 'spam' if output == 'SPAM' else 'ham' }}" role="status">
+                <span class="result-icon" aria-hidden="true">{{ '!' if output == 'SPAM' else '✓' }}</span>
+                <p><strong>{{ output }}</strong>{{ 'This message looks like spam.' if output == 'SPAM' else 'This message looks safe (ham).' }}</p>
+            </div>
+            {% endif %}
+        </section>
+        <footer>Simple, private message checking on your device.</footer>
+    </main>
+</body>
+</html>
